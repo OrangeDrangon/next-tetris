@@ -25,88 +25,102 @@ export enum RotationDirection {
   counterClockwise,
 }
 
+interface PieceOptions {
+  translationVector: Vector;
+  tiles: Tuple<Tile, 4>;
+}
+
 /**
  * Representation of the piece object.
  */
 export class Piece {
-  public readonly shape: PieceShape;
-  public readonly tiles: Tuple<Tile, 4>;
+  public shape: PieceShape;
+  public tiles: Tuple<Tile, 4>;
   private index: 0 | 1 | 2 | 3 = 0;
 
   /**
    * Initializes a new pience with the given shape in the correct spawn position. With cordinate relative to the center.
    *
    * @param {PieceShape} shape Shape of the piece to create.
+   * @param {Vector} [vector] Optional initial translation of the piece
    */
-  constructor(shape: PieceShape) {
+  constructor(shape: PieceShape, options?: Partial<PieceOptions>) {
     this.shape = shape;
-
-    switch (this.shape) {
-      case PieceShape.I:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(-1, 0),
-          new Tile(1, 0),
-          new Tile(2, 0),
-        ];
-        break;
-      case PieceShape.J:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(-1, 1),
-          new Tile(-1, 0),
-          new Tile(1, 0),
-        ];
-        break;
-      case PieceShape.L:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(1, 1),
-          new Tile(-1, 0),
-          new Tile(1, 0),
-        ];
-        break;
-      case PieceShape.O:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(0, 1),
-          new Tile(1, 1),
-          new Tile(1, 0),
-        ];
-        break;
-      case PieceShape.S:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(0, 1),
-          new Tile(1, 1),
-          new Tile(-1, 0),
-        ];
-        break;
-      case PieceShape.Z:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(-1, 1),
-          new Tile(0, 1),
-          new Tile(1, 0),
-        ];
-        break;
-      case PieceShape.T:
-        this.tiles = [
-          new Tile(0, 0),
-          new Tile(0, 1),
-          new Tile(-1, 0),
-          new Tile(1, 0),
-        ];
-        break;
+    if (options?.tiles == null) {
+      switch (this.shape) {
+        case PieceShape.I:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(-1, 0),
+            new Tile(1, 0),
+            new Tile(2, 0),
+          ];
+          break;
+        case PieceShape.J:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(-1, 1),
+            new Tile(-1, 0),
+            new Tile(1, 0),
+          ];
+          break;
+        case PieceShape.L:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(1, 1),
+            new Tile(-1, 0),
+            new Tile(1, 0),
+          ];
+          break;
+        case PieceShape.O:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(0, 1),
+            new Tile(1, 1),
+            new Tile(1, 0),
+          ];
+          break;
+        case PieceShape.S:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(0, 1),
+            new Tile(1, 1),
+            new Tile(-1, 0),
+          ];
+          break;
+        case PieceShape.Z:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(-1, 1),
+            new Tile(0, 1),
+            new Tile(1, 0),
+          ];
+          break;
+        case PieceShape.T:
+          this.tiles = [
+            new Tile(0, 0),
+            new Tile(0, 1),
+            new Tile(-1, 0),
+            new Tile(1, 0),
+          ];
+          break;
+      }
+    } else {
+      this.tiles = options.tiles;
     }
+
+    options?.translationVector && this.translate(options.translationVector);
   }
-/**
- * Translates all of the tiles by the provided vector.
- *
- * @param {Vector} vector Vector to translate by.
- */
-public translate(vector: Vector) {
-    this.tiles.forEach((tile) => tile.translate(vector));
+
+  /**
+   * Translates all of the tiles by the provided vector.
+   *
+   * @param {Vector} vector Vector to translate by.
+   */
+  public translate(vector: Vector): Piece {
+    return new Piece(this.shape, {
+      tiles: this.tiles.map((tile) => tile.translate(vector)) as Tuple<Tile, 4>,
+    });
   }
 
   /**
@@ -119,8 +133,9 @@ public translate(vector: Vector) {
     const rotationMatrix =
       direction === RotationDirection.clockwise ? clockwise : counterClockwise;
 
-    const center = new Tile(this.tiles[0].x, this.tiles[0].y);
-    this.tiles.map((tile) => tile.rotate(center, rotationMatrix));
+    this.tiles = this.tiles.map((tile) =>
+      tile.rotate(this.tiles[0], rotationMatrix)
+    ) as Tuple<Tile, 4>;
 
     const newIndex = ((this.index % 4) + this.index) % 4;
   }

@@ -1,5 +1,6 @@
 import { Piece, PieceShape, RotationDirection } from "./Piece";
 import { Tile } from "./Tile";
+import { Vector } from "./Vector";
 
 test("Should create a horizontal I piece", () => {
   const piece = new Piece(PieceShape.I);
@@ -20,6 +21,20 @@ test("Should create a O piece", () => {
     new Tile(0, 1),
     new Tile(1, 1),
     new Tile(1, 0),
+  ]);
+});
+
+test("Should translate an I piece by the vector", () => {
+  const piece = new Piece(PieceShape.I);
+  const vector = new Vector(10, 10);
+
+  const translated = piece.translate(vector);
+
+  expect(translated.tiles).toStrictEqual([
+    new Tile(10, 10),
+    new Tile(9, 10),
+    new Tile(11, 10),
+    new Tile(12, 10),
   ]);
 });
 
