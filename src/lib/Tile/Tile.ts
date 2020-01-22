@@ -7,12 +7,12 @@ export class Tile extends Vector {
   }
 
   /**
-   * Translates the vector by the provided vector.
+   * Adds the tile to the provided tile.
    *
-   * @param {Vector} vector Vector to translate by
+   * @param {Vector} vector Vector to add by
    */
-  public translate(vector: Vector): Tile {
-    const { x, y } = super.translate(vector);
+  public add(vector: Vector): Tile {
+    const { x, y } = super.add(vector);
     return new Tile(x, y);
   }
 
@@ -25,13 +25,23 @@ export class Tile extends Vector {
   }
 
   /**
+   * Subtracts the tile by the provided vector.
+   *
+   * @param {Vector} vector Vector to subtract by
+   */
+  public subtract(vector: Vector): Tile {
+    const { x, y } = super.subtract(vector);
+    return new Tile(x, y);
+  }
+
+  /**
    * Rotates the tile using matrix matrix multiplactions.
    *
    * @param {Tile} center Tile for the refrence piece in order to translate relative to the origin.
    * @param {RotationMatrix} rotationMatrix Matrix to use in the matrix multiplaction for rotation.
    */
   public rotate(center: Tile, rotationMatrix: RotationMatrix): Tile {
-    const translatedTile = center.invert().translate(this);
+    const translatedTile = this.subtract(center);
     const newX =
       rotationMatrix[0][0] * translatedTile.x +
       rotationMatrix[0][1] * translatedTile.y;
@@ -39,6 +49,6 @@ export class Tile extends Vector {
       rotationMatrix[1][0] * translatedTile.x +
       rotationMatrix[1][1] * translatedTile.y;
 
-    return new Tile(newX, newY).translate(center);
+    return new Tile(newX, newY).add(center);
   }
 }

@@ -22,11 +22,20 @@ export class Vector {
   }
 
   /**
-   * Translates the vector by the provided vector.
+   * Add the vector to the provided vector.
    *
-   * @param {Vector} vector Vector to translate by
+   * @param {Vector} vector Vector to add by
    */
-  public translate(vector: Vector): Vector {
+  public add(vector: Vector): Vector {
     return new Vector(this.x + vector.x, this.y + vector.y);
+  }
+
+  /**
+   * Subtracts the vector by the provided vector.
+   *
+   * @param {Vector} vector Vector to subtract by
+   */
+  public subtract(vector: Vector): Vector {
+    return vector.invert().add(this);
   }
 }

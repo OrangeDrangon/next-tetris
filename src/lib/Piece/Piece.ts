@@ -26,10 +26,12 @@ export enum RotationDirection {
   counterClockwise,
 }
 
+type RotationIndex = 0 | 1 | 2 | 3;
+
 interface PieceOptions {
   translationVector: Vector;
   tiles: Tuple<Tile, 4>;
-  index: 0 | 1 | 2 | 3;
+  index: RotationIndex;
 }
 
 /**
@@ -38,7 +40,7 @@ interface PieceOptions {
 export class Piece {
   public readonly shape: PieceShape;
   public readonly tiles: Tuple<Tile, 4>;
-  private readonly index: 0 | 1 | 2 | 3 = 0;
+  private readonly index: RotationIndex = 0;
 
   /**
    * Initializes a new pience with the given shape in the correct spawn position. With cordinate relative to the center.
@@ -138,7 +140,11 @@ export class Piece {
     const rotationMatrix =
       direction === RotationDirection.clockwise ? clockwise : counterClockwise;
 
-    const newIndex = (((this.index % 4) + this.index) % 4) as 0 | 1 | 2 | 3;
+    const newIndex = (((this.index % 4) + this.index) % 4) as RotationIndex;
+
+    if (offset) {
+      
+    }
 
     return new Piece(this.shape, {
       index: newIndex,
