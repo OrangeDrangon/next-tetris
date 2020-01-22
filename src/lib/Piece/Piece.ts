@@ -1,7 +1,7 @@
-import { Tile } from "./Tile";
-import { Tuple } from "./Tuple";
-import { clockwise, counterClockwise } from "./RotationMatrix";
-import { Vector } from "./Vector";
+import { Tile } from "../Tile";
+import { Tuple } from "../Tuple";
+import { clockwise, counterClockwise } from "../RotationMatrix";
+import { Vector } from "../Vector";
 
 /**
  * The 7 permutations of tetriminos possible in a game of tetris.
@@ -17,6 +17,7 @@ export enum PieceShape {
   S,
   T,
 }
+
 /**
  * Possible directions of rotation in the game of tetris.
  */

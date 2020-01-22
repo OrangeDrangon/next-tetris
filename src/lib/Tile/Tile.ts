@@ -1,5 +1,5 @@
-import { RotationMatrix } from "./RotationMatrix";
-import { Vector } from "./Vector";
+import { RotationMatrix } from "../RotationMatrix";
+import { Vector } from "../Vector";
 
 export class Tile extends Vector {
   constructor(x: number, y: number) {

@@ -1,5 +1,5 @@
 import { Tile } from "./Tile";
-import { clockwise, counterClockwise } from "./RotationMatrix";
+import { clockwise, counterClockwise } from "../RotationMatrix";
 
 test("Should rotate about (0, 0) clockwise", () => {
   const tile = new Tile(0, 1);

@@ -1,6 +1,6 @@
 import { Piece, PieceShape, RotationDirection } from "./Piece";
-import { Tile } from "./Tile";
-import { Vector } from "./Vector";
+import { Tile } from "../Tile";
+import { Vector } from "../Vector";
 
 test("Should create a horizontal I piece", () => {
   const piece = new Piece(PieceShape.I);
