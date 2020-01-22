@@ -29,15 +29,16 @@ export enum RotationDirection {
 interface PieceOptions {
   translationVector: Vector;
   tiles: Tuple<Tile, 4>;
+  index: 0 | 1 | 2 | 3;
 }
 
 /**
  * Representation of the piece object.
  */
 export class Piece {
-  public shape: PieceShape;
-  public tiles: Tuple<Tile, 4>;
-  private index: 0 | 1 | 2 | 3 = 0;
+  public readonly shape: PieceShape;
+  public readonly tiles: Tuple<Tile, 4>;
+  private readonly index: 0 | 1 | 2 | 3 = 0;
 
   /**
    * Initializes a new pience with the given shape in the correct spawn position. With cordinate relative to the center.
@@ -111,6 +112,9 @@ export class Piece {
     }
 
     options?.translationVector && this.translate(options.translationVector);
+    if (options?.index != null) {
+      this.index = options.index;
+    }
   }
 
   /**
@@ -130,14 +134,17 @@ export class Piece {
    * @param {RotationDirection} direction Direction to rotate the piece
    * @param {boolean} [offset=false] Should wallkick / offset checks be done
    */
-  public rotate(direction: RotationDirection, offset: boolean = false): void {
+  public rotate(direction: RotationDirection, offset: boolean = false): Piece {
     const rotationMatrix =
       direction === RotationDirection.clockwise ? clockwise : counterClockwise;
 
-    this.tiles = this.tiles.map((tile) =>
-      tile.rotate(this.tiles[0], rotationMatrix)
-    ) as Tuple<Tile, 4>;
+    const newIndex = (((this.index % 4) + this.index) % 4) as 0 | 1 | 2 | 3;
 
-    const newIndex = ((this.index % 4) + this.index) % 4;
+    return new Piece(this.shape, {
+      index: newIndex,
+      tiles: this.tiles.map((tile) =>
+        tile.rotate(this.tiles[0], rotationMatrix)
+      ) as Tuple<Tile, 4>,
+    });
   }
 }
