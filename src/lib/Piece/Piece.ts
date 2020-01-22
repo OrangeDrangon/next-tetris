@@ -126,7 +126,7 @@ export class Piece {
    */
   public translate(vector: Vector): Piece {
     return new Piece(this.shape, {
-      tiles: this.tiles.map((tile) => tile.translate(vector)) as Tuple<Tile, 4>,
+      tiles: this.tiles.map((tile) => tile.add(vector)) as Tuple<Tile, 4>,
     });
   }
 
@@ -143,7 +143,6 @@ export class Piece {
     const newIndex = (((this.index % 4) + this.index) % 4) as RotationIndex;
 
     if (offset) {
-      
     }
 
     return new Piece(this.shape, {
