@@ -2,6 +2,8 @@ import { Tile } from "../Tile";
 import { Tuple } from "../Tuple";
 import { clockwise, counterClockwise } from "../RotationMatrix";
 import { Vector } from "../Vector";
+import { OffsetRules, I_OFFSET, O_OFFSET, JLSTZ_OFFSET } from "../OffsetRules";
+import { Board } from "../Board";
 
 /**
  * The 7 permutations of tetriminos possible in a game of tetris.
@@ -133,23 +135,53 @@ export class Piece {
   /**
    * Rotates the piece by rotating each tile using the calculated matrix.
    *
+   * @param {Board} board Instance of the board class in order to check if the new tiles will fit
    * @param {RotationDirection} direction Direction to rotate the piece
    * @param {boolean} [offset=false] Should wallkick / offset checks be done
    */
-  public rotate(direction: RotationDirection, offset: boolean = false): Piece {
+  public rotate(
+    board: Board,
+    direction: RotationDirection,
+    offset: boolean = false
+  ): Piece {
     const rotationMatrix =
       direction === RotationDirection.clockwise ? clockwise : counterClockwise;
 
+    let newTiles = this.tiles.map((tile) =>
+      tile.rotate(this.tiles[0], rotationMatrix)
+    );
     const newIndex = (((this.index % 4) + this.index) % 4) as RotationIndex;
+    const canRotate = board.tilesDoFit(newTiles);
 
-    if (offset) {
+    if (offset && !canRotate) {
+      let rules: OffsetRules;
+      switch (this.shape) {
+        case PieceShape.I:
+          rules = I_OFFSET;
+          break;
+        case PieceShape.O:
+          rules = O_OFFSET;
+          break;
+        default:
+          rules = JLSTZ_OFFSET;
+          break;
+      }
+
+      rules.some((rule) => {
+        const movementOffset = rule[newIndex].subtract(rule[this.index]);
+        const testTiles = newTiles.map((tile) => tile.add(movementOffset));
+        const doFit = board.tilesDoFit(testTiles);
+        if (doFit) {
+          newTiles = testTiles;
+          return true;
+        }
+        return false;
+      });
     }
 
     return new Piece(this.shape, {
       index: newIndex,
-      tiles: this.tiles.map((tile) =>
-        tile.rotate(this.tiles[0], rotationMatrix)
-      ) as Tuple<Tile, 4>,
+      tiles: newTiles as Tuple<Tile, 4>,
     });
   }
 }

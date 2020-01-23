@@ -1,6 +1,7 @@
 import { Piece, PieceShape, RotationDirection } from "./Piece";
 import { Tile } from "../Tile";
 import { Vector } from "../Vector";
+import { Board } from "../Board";
 
 test("Should create a horizontal I piece", () => {
   const piece = new Piece(PieceShape.I);
@@ -40,7 +41,8 @@ test("Should translate an I piece by the vector", () => {
 
 test("Should rotate the Z piece clockwise without offsets", () => {
   const piece = new Piece(PieceShape.Z);
-  const rotated = piece.rotate(RotationDirection.clockwise, false);
+  const board = new Board();
+  const rotated = piece.rotate(board, RotationDirection.clockwise, false);
   expect(rotated.tiles).toStrictEqual([
     new Tile(0, 0),
     new Tile(1, 1),
@@ -51,7 +53,12 @@ test("Should rotate the Z piece clockwise without offsets", () => {
 
 test("Should rotate the S piece counter-clockwise without offsets", () => {
   const piece = new Piece(PieceShape.S);
-  const rotated = piece.rotate(RotationDirection.counterClockwise, false);
+  const board = new Board();
+  const rotated = piece.rotate(
+    board,
+    RotationDirection.counterClockwise,
+    false
+  );
   expect(rotated.tiles).toStrictEqual([
     new Tile(0, 0),
     new Tile(-1, 0),
@@ -62,7 +69,8 @@ test("Should rotate the S piece counter-clockwise without offsets", () => {
 
 test("Should rotate the L piece clockwise without offsets", () => {
   const piece = new Piece(PieceShape.L);
-  const rotated = piece.rotate(RotationDirection.clockwise, false);
+  const board = new Board();
+  const rotated = piece.rotate(board, RotationDirection.clockwise, false);
   expect(rotated.tiles).toStrictEqual([
     new Tile(0, 0),
     new Tile(1, -1),
@@ -73,7 +81,12 @@ test("Should rotate the L piece clockwise without offsets", () => {
 
 test("Should rotate the J piece counter-clockwise without offsets", () => {
   const piece = new Piece(PieceShape.J);
-  const rotated = piece.rotate(RotationDirection.counterClockwise, false);
+  const board = new Board();
+  const rotated = piece.rotate(
+    board,
+    RotationDirection.counterClockwise,
+    false
+  );
   expect(rotated.tiles).toStrictEqual([
     new Tile(0, 0),
     new Tile(-1, -1),
@@ -84,7 +97,12 @@ test("Should rotate the J piece counter-clockwise without offsets", () => {
 
 test("Should rotate the T piece counter-clockwise without offsets", () => {
   const piece = new Piece(PieceShape.T);
-  const rotated = piece.rotate(RotationDirection.counterClockwise, false);
+  const board = new Board();
+  const rotated = piece.rotate(
+    board,
+    RotationDirection.counterClockwise,
+    false
+  );
   expect(rotated.tiles).toStrictEqual([
     new Tile(0, 0),
     new Tile(-1, 0),
