@@ -9,12 +9,19 @@ interface BoardConstructionOptions {
   height: number;
   field: Field;
 }
-
+/**
+ * Holds board as a map and some methods for interacting with it.
+ */
 export class Board {
   public readonly field: Field;
   public readonly width: number = 10;
   public readonly height: number = 22;
 
+  /**
+   * Creates an instance of Board from patioal or complete options of a board.
+   *
+   * @param {Partial<BoardConstructionOptions>} [options] Options to overide when creating a board.
+   */
   constructor(options?: Partial<BoardConstructionOptions>) {
     if (options?.width != null) this.width = options.width;
     if (options?.height != null) this.height = options.height;
@@ -33,12 +40,22 @@ export class Board {
     }
   }
 
+  /**
+   * Calculates if a given array of tiles will fit in the current field.
+   *
+   * @param {Tile[]} tiles Array of tiles to check if they fit
+   */
   public tilesDoFit(tiles: Tile[]): boolean {
     return tiles
       .map((tile) => this.field.get(`${tile.x},${tile.y}`) === null)
       .reduce((prev, curr) => prev && curr, true);
   }
 
+  /**
+   * Checks if a piece fits into the board and if so creates a new board with it in it.
+   *
+   * @param {Piece} piece Piece to add.
+   */
   public addPiece(piece: Piece): Board {
     if (this.tilesDoFit(piece.tiles)) {
       const newField = new Map(this.field);
