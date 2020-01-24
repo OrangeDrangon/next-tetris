@@ -36,13 +36,13 @@ export enum RotationDirection {
 type RotationIndex = 0 | 1 | 2 | 3;
 
 export interface PieceOptions {
-  readonly tiles: Tuple<Vector, 4>;
+  readonly tiles: Vector[];
   readonly index: RotationIndex;
 }
 
 export interface Piece {
   readonly shape: PieceShape;
-  readonly tiles: Tuple<Vector, 4>;
+  readonly tiles: Vector[];
   readonly index: RotationIndex;
 }
 
@@ -129,14 +129,14 @@ export const createPiece = (
  */
 export const translate = (piece: Piece, vector: Vector): Piece => {
   return createPiece(piece.shape, {
-    tiles: piece.tiles.map((tile) => add(tile, vector)) as Tuple<Vector, 4>,
+    tiles: piece.tiles.map((tile) => add(tile, vector)),
   });
 };
 
 /**
  * Rotates the piece by rotating each tile using the calculated matrix.
  *
- * @param {Board} board Instance of the board class in order to check if the createVectors will fit
+ * @param {Board} board Instance of board in order to check if the createVectors will fit
  * @param {RotationDirection} direction Direction to rotate the piece
  * @param {boolean} [offset=false] Should wallkick / offset checks be done
  */
@@ -183,6 +183,6 @@ export const rotate = (
 
   return createPiece(piece.shape, {
     index: newIndex,
-    tiles: newTiles as Tuple<Vector, 4>,
+    tiles: newTiles,
   });
 };

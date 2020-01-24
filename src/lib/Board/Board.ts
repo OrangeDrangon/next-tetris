@@ -35,7 +35,9 @@ export const createBoard = (
   if (Object.keys(field).length === 0) {
     new Array(width * height).fill(0).forEach((_, index) => {
       field[
-        toString(createVector(index % width, Math.floor(index / height)))
+        toString(
+          createVector(index % width, height - Math.floor(index / width))
+        )
       ] = null;
     });
   }

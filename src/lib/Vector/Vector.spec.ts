@@ -9,7 +9,7 @@ test("Should create a new vector", () => {
 test("Should create a translated vector by (10, 10)", () => {
   const vector = createVector(10, 4);
   const translated = add(vector, createVector(10, 10));
-  expect(translated).toStrictEqual(createVector(20, 4));
+  expect(translated).toStrictEqual(createVector(20, 14));
 });
 
 test("Should create an inverted vector", () => {

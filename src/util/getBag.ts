@@ -1,5 +1,6 @@
-import { Piece, PieceShape } from "../lib/Piece";
+import { Piece, PieceShape, createPiece, translate } from "../lib/Piece";
 import shuffle from "shuffle-array";
+import { createVector } from "../lib/Vector";
 
 /**
  * The typing for one bag of pieces.
@@ -10,13 +11,13 @@ export type Bag = Piece[];
  * An unshuffled constant that is copied and shuffled in the [[getBag]] function.
  */
 const unshuffledBag: Bag = [
-  new Piece(PieceShape.I),
-  new Piece(PieceShape.L),
-  new Piece(PieceShape.J),
-  new Piece(PieceShape.O),
-  new Piece(PieceShape.S),
-  new Piece(PieceShape.T),
-  new Piece(PieceShape.Z),
+  translate(createPiece(PieceShape.I), createVector(5, 21)),
+  translate(createPiece(PieceShape.L), createVector(5, 21)),
+  translate(createPiece(PieceShape.J), createVector(5, 21)),
+  translate(createPiece(PieceShape.O), createVector(5, 21)),
+  translate(createPiece(PieceShape.S), createVector(5, 21)),
+  translate(createPiece(PieceShape.T), createVector(5, 21)),
+  translate(createPiece(PieceShape.Z), createVector(5, 21)),
 ];
 
 /**

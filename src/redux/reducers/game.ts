@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RotationDirection, Piece } from "../../lib/Piece";
+import { RotationDirection, Piece, rotate, translate } from "../../lib/Piece";
 import { Bag } from "../../util/getBag";
-import { Board, createBoard } from "../../lib/Board";
+import { Board, createBoard, tilesDoFit, addPiece } from "../../lib/Board";
+import { createVector } from "../../lib/Vector";
 
 interface InitialState {
   board: Board;
   activePiece?: Piece;
   activePieceShadow?: Piece;
-  nextPieces?: Bag;
+  nextPieces: Bag;
   heldPiece?: Piece;
   canHold: boolean;
 }
@@ -15,51 +16,44 @@ interface InitialState {
 const initialState: InitialState = {
   board: createBoard(),
   canHold: true,
+  nextPieces: [],
 };
 
 const slice = createSlice({
   initialState,
   name: "game",
   reducers: {
-    holdActivePiece: (state) => {
-      if (state.canHold) {
-        const held = state.heldPiece?.translate(new Vector(0, 0));
-        state.heldPiece = state.activePiece;
-
-        if (held != null) {
-          state.activePiece = held;
-        } else if (state.nextPieces != null) {
-          state.activePiece = state.nextPieces.shift();
-        } else {
-          state.activePiece = undefined;
-        }
-        state.canHold = false;
+    holdActivePiece: ({ canHold, heldPiece, activePiece, nextPieces }) => {
+      if (canHold) {
       }
     },
     rotateActivePiece: (
-      state,
+      { activePiece, board },
       { payload }: PayloadAction<RotationDirection>
     ) => {
-      state.activePiece = state.activePiece?.rotate(state.board, payload, true);
+      if (activePiece != null) {
+        activePiece = rotate(activePiece, board, payload);
+      }
     },
     stepDownActivePiece: (state) => {
       if (state.activePiece != null) {
-        const translated = state.activePiece.translate(new Vector(0, -1));
-        const doesFit = state.board.tilesDoFit(translated.tiles);
+        const translated = translate(state.activePiece, createVector(0, -1));
+        const doesFit = tilesDoFit(state.board, translated.tiles);
 
         if (doesFit) {
           state.activePiece = translated;
         } else {
-          state.board = state.board.addPiece(
-            state.activePiece.translate(new Vector(0, 0))
-          );
-          state.activePiece = state.nextPieces?.shift();
+          state.board = addPiece(state.board, state.activePiece);
+          state.activePiece = state.nextPieces.shift();
           state.canHold = true;
         }
       }
     },
     addNextPieces: (state, { payload }: PayloadAction<Bag>) => {
-      state.nextPieces = state.nextPieces?.concat(payload);
+      state.nextPieces = state.nextPieces.concat(payload);
+      if (state.activePiece == null) {
+        state.activePiece = state.nextPieces.shift();
+      }
     },
   },
 });
