@@ -1,8 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Board } from "../../lib/Board";
-import { Piece, RotationDirection } from "../../lib/Piece";
-import { Vector } from "../../lib/Vector";
+import { RotationDirection, Piece } from "../../lib/Piece";
 import { Bag } from "../../util/getBag";
+import { Board, createBoard } from "../../lib/Board";
 
 interface InitialState {
   board: Board;
@@ -14,7 +13,7 @@ interface InitialState {
 }
 
 const initialState: InitialState = {
-  board: new Board(),
+  board: createBoard(),
   canHold: true,
 };
 

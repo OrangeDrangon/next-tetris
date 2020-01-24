@@ -1,9 +1,14 @@
-import { Tile } from "../Tile";
 import { Tuple } from "../Tuple";
 import { clockwise, counterClockwise } from "../RotationMatrix";
-import { Vector } from "../Vector";
 import { OffsetRules, I_OFFSET, O_OFFSET, JLSTZ_OFFSET } from "../OffsetRules";
-import { Board } from "../Board";
+import { Board, tilesDoFit } from "../Board";
+import {
+  Vector,
+  createVector,
+  add,
+  rotate as vectorRotate,
+  subtract,
+} from "../Vector";
 
 /**
  * The 7 permutations of tetriminos possible in a game of tetris.
@@ -30,158 +35,154 @@ export enum RotationDirection {
 
 type RotationIndex = 0 | 1 | 2 | 3;
 
-interface PieceOptions {
-  translationVector: Vector;
-  tiles: Tuple<Tile, 4>;
-  index: RotationIndex;
+export interface PieceOptions {
+  readonly tiles: Tuple<Vector, 4>;
+  readonly index: RotationIndex;
+}
+
+export interface Piece {
+  readonly shape: PieceShape;
+  readonly tiles: Tuple<Vector, 4>;
+  readonly index: RotationIndex;
 }
 
 /**
- * Representation of the piece object.
+ * Initializes a new pience with the given shape in the correct spawn position. With cordinate relative to the center.
+ *
+ * @param {PieceShape} shape Shape of the piece to create.
+ * @param {Vector} [vector] Optional initial translation of the piece
  */
-export class Piece {
-  public readonly shape: PieceShape;
-  public readonly tiles: Tuple<Tile, 4>;
-  private readonly index: RotationIndex = 0;
-
-  /**
-   * Initializes a new pience with the given shape in the correct spawn position. With cordinate relative to the center.
-   *
-   * @param {PieceShape} shape Shape of the piece to create.
-   * @param {Vector} [vector] Optional initial translation of the piece
-   */
-  constructor(shape: PieceShape, options?: Partial<PieceOptions>) {
-    this.shape = shape;
-    if (options?.tiles == null) {
-      switch (this.shape) {
-        case PieceShape.I:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(-1, 0),
-            new Tile(1, 0),
-            new Tile(2, 0),
-          ];
-          break;
-        case PieceShape.J:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(-1, 1),
-            new Tile(-1, 0),
-            new Tile(1, 0),
-          ];
-          break;
-        case PieceShape.L:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(1, 1),
-            new Tile(-1, 0),
-            new Tile(1, 0),
-          ];
-          break;
-        case PieceShape.O:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(0, 1),
-            new Tile(1, 1),
-            new Tile(1, 0),
-          ];
-          break;
-        case PieceShape.S:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(0, 1),
-            new Tile(1, 1),
-            new Tile(-1, 0),
-          ];
-          break;
-        case PieceShape.Z:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(-1, 1),
-            new Tile(0, 1),
-            new Tile(1, 0),
-          ];
-          break;
-        case PieceShape.T:
-          this.tiles = [
-            new Tile(0, 0),
-            new Tile(0, 1),
-            new Tile(-1, 0),
-            new Tile(1, 0),
-          ];
-          break;
-      }
-    } else {
-      this.tiles = options.tiles;
-    }
-
-    options?.translationVector && this.translate(options.translationVector);
-    if (options?.index != null) {
-      this.index = options.index;
+export const createPiece = (
+  shape: PieceShape,
+  options?: Partial<PieceOptions>
+): Piece => {
+  const index = options?.index || 0;
+  let tiles = options?.tiles;
+  if (tiles == null) {
+    switch (shape) {
+      case PieceShape.I:
+        tiles = [
+          createVector(0, 0),
+          createVector(-1, 0),
+          createVector(1, 0),
+          createVector(2, 0),
+        ];
+        break;
+      case PieceShape.J:
+        tiles = [
+          createVector(0, 0),
+          createVector(-1, 1),
+          createVector(-1, 0),
+          createVector(1, 0),
+        ];
+        break;
+      case PieceShape.L:
+        tiles = [
+          createVector(0, 0),
+          createVector(1, 1),
+          createVector(-1, 0),
+          createVector(1, 0),
+        ];
+        break;
+      case PieceShape.O:
+        tiles = [
+          createVector(0, 0),
+          createVector(0, 1),
+          createVector(1, 1),
+          createVector(1, 0),
+        ];
+        break;
+      case PieceShape.S:
+        tiles = [
+          createVector(0, 0),
+          createVector(0, 1),
+          createVector(1, 1),
+          createVector(-1, 0),
+        ];
+        break;
+      case PieceShape.Z:
+        tiles = [
+          createVector(0, 0),
+          createVector(-1, 1),
+          createVector(0, 1),
+          createVector(1, 0),
+        ];
+        break;
+      case PieceShape.T:
+        tiles = [
+          createVector(0, 0),
+          createVector(0, 1),
+          createVector(-1, 0),
+          createVector(1, 0),
+        ];
+        break;
     }
   }
 
-  /**
-   * Translates all of the tiles by the provided vector.
-   *
-   * @param {Vector} vector Vector to translate by.
-   */
-  public translate(vector: Vector): Piece {
-    return new Piece(this.shape, {
-      tiles: this.tiles.map((tile) => tile.add(vector)) as Tuple<Tile, 4>,
+  return { tiles, index, shape };
+};
+
+/**
+ * Translates all of the tiles by the provided vector.
+ *
+ * @param {Vector} vector Vector to translate by.
+ */
+export const translate = (piece: Piece, vector: Vector): Piece => {
+  return createPiece(piece.shape, {
+    tiles: piece.tiles.map((tile) => add(tile, vector)) as Tuple<Vector, 4>,
+  });
+};
+
+/**
+ * Rotates the piece by rotating each tile using the calculated matrix.
+ *
+ * @param {Board} board Instance of the board class in order to check if the createVectors will fit
+ * @param {RotationDirection} direction Direction to rotate the piece
+ * @param {boolean} [offset=false] Should wallkick / offset checks be done
+ */
+export const rotate = (
+  piece: Piece,
+  board: Board,
+  direction: RotationDirection,
+  offset: boolean = false
+): Piece => {
+  const rotationMatrix =
+    direction === RotationDirection.clockwise ? clockwise : counterClockwise;
+
+  let newTiles = piece.tiles.map((tile) =>
+    vectorRotate(tile, piece.tiles[0], rotationMatrix)
+  );
+  const newIndex = (((piece.index % 4) + piece.index) % 4) as RotationIndex;
+  const canRotate = tilesDoFit(board, newTiles);
+
+  if (offset && !canRotate) {
+    let rules: OffsetRules;
+    switch (piece.shape) {
+      case PieceShape.I:
+        rules = I_OFFSET;
+        break;
+      case PieceShape.O:
+        rules = O_OFFSET;
+        break;
+      default:
+        rules = JLSTZ_OFFSET;
+        break;
+    }
+
+    rules.some((rule) => {
+      const movementOffset = subtract(rule[newIndex], rule[piece.index]);
+      const testTiles = newTiles.map((tile) => add(tile, movementOffset));
+      const doFit = tilesDoFit(board, testTiles);
+      if (doFit) {
+        newTiles = testTiles;
+        return true;
+      }
+      return false;
     });
   }
 
-  /**
-   * Rotates the piece by rotating each tile using the calculated matrix.
-   *
-   * @param {Board} board Instance of the board class in order to check if the new tiles will fit
-   * @param {RotationDirection} direction Direction to rotate the piece
-   * @param {boolean} [offset=false] Should wallkick / offset checks be done
-   */
-  public rotate(
-    board: Board,
-    direction: RotationDirection,
-    offset: boolean = false
-  ): Piece {
-    const rotationMatrix =
-      direction === RotationDirection.clockwise ? clockwise : counterClockwise;
-
-    let newTiles = this.tiles.map((tile) =>
-      tile.rotate(this.tiles[0], rotationMatrix)
-    );
-    const newIndex = (((this.index % 4) + this.index) % 4) as RotationIndex;
-    const canRotate = board.tilesDoFit(newTiles);
-
-    if (offset && !canRotate) {
-      let rules: OffsetRules;
-      switch (this.shape) {
-        case PieceShape.I:
-          rules = I_OFFSET;
-          break;
-        case PieceShape.O:
-          rules = O_OFFSET;
-          break;
-        default:
-          rules = JLSTZ_OFFSET;
-          break;
-      }
-
-      rules.some((rule) => {
-        const movementOffset = rule[newIndex].subtract(rule[this.index]);
-        const testTiles = newTiles.map((tile) => tile.add(movementOffset));
-        const doFit = board.tilesDoFit(testTiles);
-        if (doFit) {
-          newTiles = testTiles;
-          return true;
-        }
-        return false;
-      });
-    }
-
-    return new Piece(this.shape, {
-      index: newIndex,
-      tiles: newTiles as Tuple<Tile, 4>,
-    });
-  }
-}
+  return createPiece(piece.shape, {
+    index: newIndex,
+    tiles: newTiles as Tuple<Vector, 4>,
+  });
+};
