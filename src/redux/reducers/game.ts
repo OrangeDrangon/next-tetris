@@ -2,12 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Board } from "../../lib/Board";
 import { Piece, RotationDirection } from "../../lib/Piece";
 import { Vector } from "../../lib/Vector";
+import { Bag } from "../../util/getBag";
 
 interface InitialState {
   board: Board;
   activePiece?: Piece;
   activePieceShadow?: Piece;
-  nextPieces?: Piece[];
+  nextPieces?: Bag;
   heldPiece?: Piece;
   canHold: boolean;
 }
@@ -21,21 +22,20 @@ const slice = createSlice({
   initialState,
   name: "game",
   reducers: {
-    setActivePiece: (state, { payload }: PayloadAction<Piece>) => {
-      state.activePiece = payload;
-    },
     holdActivePiece: (state) => {
-      const held = state.heldPiece?.translate(new Vector(0, 0));
-      state.heldPiece = state.activePiece;
+      if (state.canHold) {
+        const held = state.heldPiece?.translate(new Vector(0, 0));
+        state.heldPiece = state.activePiece;
 
-      if (held != null) {
-        state.activePiece = held;
-      } else if (state.nextPieces != null) {
-        state.activePiece = state.nextPieces.shift();
-      } else {
-        state.activePiece = undefined;
+        if (held != null) {
+          state.activePiece = held;
+        } else if (state.nextPieces != null) {
+          state.activePiece = state.nextPieces.shift();
+        } else {
+          state.activePiece = undefined;
+        }
+        state.canHold = false;
       }
-      state.canHold = false;
     },
     rotateActivePiece: (
       state,
@@ -54,8 +54,13 @@ const slice = createSlice({
           state.board = state.board.addPiece(
             state.activePiece.translate(new Vector(0, 0))
           );
+          state.activePiece = state.nextPieces?.shift();
+          state.canHold = true;
         }
       }
+    },
+    addNextPieces: (state, { payload }: PayloadAction<Bag>) => {
+      state.nextPieces = state.nextPieces?.concat(payload);
     },
   },
 });
@@ -63,9 +68,9 @@ const slice = createSlice({
 const { reducer, actions } = slice;
 
 export const {
-  setActivePiece,
   holdActivePiece,
   rotateActivePiece,
   stepDownActivePiece,
+  addNextPieces,
 } = actions;
 export default reducer;
